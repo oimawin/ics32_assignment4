@@ -97,37 +97,6 @@ def rcv_msg(connection) -> ds_protocol.DataTuple:
     return response
 
 
-def package_join(username:str, password:str) -> str:
-    """
-    Returns a formatted json string with the information
-    required to join the DSP server as required by the DSP Protocol.
-    """
-    info = {"join": {"username": username,"password": password,"token":""}}
-    return to_json(info)
-
-
-def package_msg(cmd:str, message:str, token:str) -> str:
-    """
-    Organizes the information to be sent to the DSP server
-    into a formatted json string as required by the DSP Protocol.
-    """
-    timestamp = time.time()
-    if cmd == "post":
-        info = {"token": token, "post": {"entry": message, "timestamp": timestamp}}
-        return to_json(info)
-    elif cmd == "bio":
-        info = {"token": token, "bio": {"entry": message, "timestamp": timestamp}}
-        return to_json(info)
-
-
-def to_json(obj:dict) -> str:
-    """
-    Serializes a python dictionary object to a json formatted string
-    returns None if object cannot be serialized to json
-    """
-    return json.dumps(obj)
-
-
 def error_present(response:ds_protocol.DataTuple) -> bool:
     """
     Returns True if the server sends an error response

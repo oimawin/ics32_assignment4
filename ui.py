@@ -11,7 +11,7 @@ The program that runs the user interface for the journaling program.
 
 from pathlib import Path
 import time
-import a3
+import a4
 import ds_client
 from Profile import Profile
 
@@ -125,7 +125,7 @@ def c_command() -> None:
     """
     path = input(FILE_PATH_MSG)
     name = input(FILE_NAME_MSG)
-    a3.create_file(path, name)
+    a4.create_file(path, name)
 
 
 def d_command() -> None:
@@ -133,7 +133,7 @@ def d_command() -> None:
     Runs the 'd' command to delete a file.
     """
     path = Path(input(FILE_PATH_MSG))
-    a3.delete_file(path)
+    a4.delete_file(path)
     print(FILE_DLT_MSG)
 
 
@@ -142,7 +142,7 @@ def r_command() -> None:
     Runs the 'r' command to read a file.
     """
     path = Path(input(FILE_PATH_MSG))
-    a3.read_file(path)
+    a4.read_file(path)
 
 
 def o_command() -> None:
@@ -153,7 +153,7 @@ def o_command() -> None:
     path = Path(input(FILE_PATH_MSG))
     print("Loading...")
     time.sleep(1)
-    user = a3.open_file(path)
+    user = a4.open_file(path)
     if user is False:
         return
     while True:
@@ -185,7 +185,7 @@ def e_command(path: Path, user: Profile) -> None:
             opt_input = input(ADD_POST_MSG)
         elif option == "-delpost":
             print(CURRENT_POSTS_MSG)
-            a3.print_data([{'option': '-posts', 'opt_input': ''}], user)
+            a4.print_data([{'option': '-posts', 'opt_input': ''}], user)
             print()
             opt_input = input(DLT_POST_MSG)
         elif option == 'b':
@@ -193,7 +193,7 @@ def e_command(path: Path, user: Profile) -> None:
         else:
             print(INVALID_INPT_MSG)
             return
-        a3.edit(path, [{'option': option, 'opt_input': opt_input}], user)
+        a4.edit(path, [{'option': option, 'opt_input': opt_input}], user)
 
 
 def p_command(user: Profile) -> None:
@@ -213,7 +213,7 @@ def p_command(user: Profile) -> None:
             return
         else:
             opt_input = ''
-        a3.print_data([{'option': option, 'opt_input': opt_input}], user)
+        a4.print_data([{'option': option, 'opt_input': opt_input}], user)
 
 
 def s_command(path:Path, user:Profile) -> None:
@@ -248,7 +248,7 @@ def send_post(user:Profile, server:str, username:str, password:str):
         print(NO_POSTS_MSG)
     else:
         print(CURRENT_POSTS_MSG)
-        a3.print_data([{'option': '-posts', 'opt_input': ''}], user)
+        a4.print_data([{'option': '-posts', 'opt_input': ''}], user)
         opt_input = int(input(POST_INDX_PROMPT))
         if opt_input >= len(user._posts):
             print("Index is out of range.")
@@ -267,7 +267,7 @@ def send_bio(user:Profile, server:str, username:str, password:str) -> bool:
     Displays the user's current bio and posts it to the server.
     """
     print("Here is your current bio:")
-    a3.print_data([{'option': '-bio', 'opto_input': ''}], user)
+    a4.print_data([{'option': '-bio', 'opto_input': ''}], user)
     print(f"Sending bio to {server}")
     successful = ds_client.send(server, PORT, username, password, '', user.bio)
     if successful:
@@ -292,7 +292,7 @@ def run_commands(user_input:str) -> None:
     elif user_input == 'o':
         o_command()
     elif user_input == 'admin':
-        a3.run_commands()
+        a4.run_commands()
     else:
         print(INVALID_INPT_MSG)
     return True

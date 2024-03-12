@@ -32,3 +32,9 @@ class TestPckgAllMsgs(unittest.TestCase):
         expected = '{"token": "chicken_fries", "directmessage": "all"}'
         output = dsp.package_directmsg("chicken_fries", all=True)
         assert expected == output, error_msg(expected, output)
+
+class TestExtractDirectsMsgs(unittest.TestCase):
+    def test_extract_send(self):
+        expected = DataTuple("ok", "Direct message sent", "")
+        output = dsp.extract_directmsgs('{"response": {"type": "ok", "message": "Direct message sent"}}')
+        assert expected == output, error_msg(expected, output)

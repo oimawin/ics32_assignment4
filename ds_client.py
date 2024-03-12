@@ -103,10 +103,11 @@ def rcv_msg(connection) -> ds_protocol.DataTuple:
     """
     response = connection.recv(2048).decode('utf-8')
     # Debugging statements
-    print("Received response from server:")
+    # print("Received response from server:")
     response = ds_protocol.extract_json(response)
-    print(response.msg)
+    # print(response.msg)
     # print()
+    # TODO: Receive all and new directmessages
     return response
 
 

@@ -6,8 +6,6 @@
 # 50385611
 
 import socket
-import json
-import time
 import ds_protocol
 
 
@@ -29,40 +27,39 @@ def send(server:str, port:int, username:str, password:str, message:str, bio:str=
     if not (bio is None or isinstance(bio, str)):
         return False
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as connection:
+        # Connect to the server using username and password
         try:
             connection.connect((server, port))
-            out_msg = package_join(username, password)
+            out_msg = ds_protocol.package_join(username, password)
             send_msg(connection, out_msg)
         except socket.error as e:
             print(e)
             return False
-
+        
+        # Receive okay message
         response = rcv_msg(connection)
         if error_present(response):
             return False
 
         token = response.token
 
+        # Post message
         if msg_valid(message):
-            out_msg = package_msg("post", message, token)
+            out_msg = ds_protocol.package_msg("post", message, token)
             send_msg(connection, out_msg)
 
             response = rcv_msg(connection)
             if error_present(response):
                 return False
 
+        # Post bio
         if isinstance(bio, str) and msg_valid(bio):
-            out_msg = package_msg("bio", bio, token)
+            out_msg = ds_protocol.package_msg("bio", bio, token)
             send_msg(connection, out_msg)
 
             response = rcv_msg(connection)
-            if error_present(response):
-                return False
-            else:
-                return True
+            return not error_present(response)
         return True
-
-    # TODO: return either True or False depending on results of required operation
 
 
 class ErrorException(Exception):

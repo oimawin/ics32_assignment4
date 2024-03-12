@@ -84,7 +84,32 @@ class DirectMessenger:
     
     def retrieve_all(self) -> list:
         # must return a list of DirectMessage objects containing all messages
-        pass
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as connection:
+
+            if not self.join_server(connection, PORT):
+                return False
+
+            out_msg = json.dumps({"token": self.token, "directmessage": "all"})
+
+            connection.send(out_msg.encode('utf-8'))
+            response = json.loads(connection.recv(2048).decode('utf-8'))
+            print(response)
+
+            if self.__error_present(response):
+                return False
+
+            msgs = response['response']['messages']
+            processed_msgs = []
+            if len(msgs) > 0:
+                for item in msgs:
+                    recipient = item['from']
+                    message = item['message']
+                    timestamp = item['timestamp']
+                    dm = DirectMessage()
+                    dm.create_dm(recipient, message, timestamp)
+                    processed_msgs.append(dm)
+
+            return processed_msgs
     
     def join_server(self, connection, port: int) -> bool:
         """

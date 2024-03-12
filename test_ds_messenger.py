@@ -22,3 +22,18 @@ class TestJoin(unittest.TestCase):
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as connection: 
             assert user2.join_server(connection, PORT)
+
+class Communication(unittest.TestCase):
+    def test_send_msg(self):
+        assert user1.send("Honey! Where's my paaaanntttsss??", user2.username)
+        assert user1.send("Always root for the local sports team.", user1.username)
+        assert user1.send("Go, sports team!", user1.username)
+        
+    def test_new_msgs(self):
+        pass
+    
+    def test_all_msgs(self):
+        pass
+
+if __name__ == "__main__":
+    unittest.main()

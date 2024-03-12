@@ -29,7 +29,29 @@ class DirectMessenger:
 		
     def send(self, message:str, recipient:str) -> bool:
         # must return true if message successfully sent, false if send failed.
-        pass
+
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as connection:
+
+            if not self.join_server(connection, PORT):
+                return False
+
+            # Send message
+            timestamp = time.time()
+            out_msg = {"token": self.token, 
+                       "directmessage": 
+                         {"entry": message, 
+                          "recipient": recipient, 
+                          "timestamp": timestamp}
+                         }
+            out_msg = json.dumps(out_msg)
+            connection.send(out_msg.encode('utf-8'))
+
+            response = json.loads(connection.recv(2048).decode('utf-8'))
+            if self.__error_present(response):
+                return False
+            
+            print(response)
+            return True
             
     def retrieve_new(self) -> list:
         # must return a list of DirectMessage objects containing all new messages

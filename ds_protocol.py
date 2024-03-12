@@ -6,7 +6,9 @@
 # 50385611
 
 import json
+import time
 from collections import namedtuple
+
 
 # Namedtuple to hold the values retrieved from json messages.
 DataTuple = namedtuple('DataTuple', ['cmd', 'msg', 'token'])
@@ -27,7 +29,7 @@ def extract_json(json_msg:str) -> DataTuple:
 
     except json.JSONDecodeError:
         print("Json cannot be decoded.")
-        
+
 # # Sending of direct message was successful
 # {"response": {"type": "ok", "message": "Direct message sent"}}
 
@@ -52,6 +54,7 @@ def extract_directmsgs(json_msg:str):
     else:
         msg = json_obj['response']['message']
         return DataTuple(cmd, msg, "")
+
 
 def to_json(obj:dict) -> str:
     """
@@ -82,7 +85,8 @@ def package_msg(cmd:str, message:str, token:str, recipient=None) -> str:
     elif cmd == "bio":
         info = {"token": token, "bio": {"entry": message, "timestamp": timestamp}}
         return to_json(info)
-    
+
+
 def package_directmsg(token:str, message=None, recipient=None, new=False, all=False):
     if isinstance(message, str):
         timestamp = time.time()

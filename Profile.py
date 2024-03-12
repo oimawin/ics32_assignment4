@@ -98,6 +98,8 @@ class Profile:
         self.password = password # REQUIRED
         self.bio = ''            # OPTIONAL
         self._posts = []         # OPTIONAL
+        self.directmsgs = {}
+        self.recipients = []
 
 
     def add_post(self, post: Post) -> None:
@@ -198,3 +200,6 @@ class Profile:
                 raise DsuProfileError(ex)
         else:
             raise DsuFileError()
+    
+    def save_recipient(self, recipient:str) -> None:
+        self.recipients.append(recipient)

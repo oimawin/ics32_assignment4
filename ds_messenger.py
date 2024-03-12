@@ -18,6 +18,11 @@ class DirectMessage:
         self.recipient = None
         self.message = None
         self.timestamp = None
+    
+    def create_dm(self, recipient, message, timestamp):
+        self.recipient = recipient
+        self.message = message
+        self.timestamp = timestamp
 
 
 class DirectMessenger:

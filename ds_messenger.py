@@ -12,13 +12,12 @@ import ds_protocol
 
 PORT = 3021
 
-
 class DirectMessage:
     def __init__(self):
         self.recipient = None
         self.message = None
         self.timestamp = None
-    
+
     def create_dm(self, recipient, message, timestamp):
         self.recipient = recipient
         self.message = message
@@ -31,7 +30,7 @@ class DirectMessenger:
         self.dsuserver = dsuserver
         self.username = username
         self.password = password
-		
+
     def send(self, message:str, recipient:str) -> bool:
         # must return true if message successfully sent, false if send failed.
 
@@ -57,7 +56,8 @@ class DirectMessenger:
             
             print(response)
             return True
-            
+
+
     def retrieve_new(self) -> list:
         # must return a list of DirectMessage objects containing all new messages
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as connection:
@@ -86,7 +86,8 @@ class DirectMessenger:
                     processed_msgs.append(dm)
 
             return processed_msgs
-    
+
+
     def retrieve_all(self) -> list:
         # must return a list of DirectMessage objects containing all messages
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as connection:
@@ -115,7 +116,8 @@ class DirectMessenger:
                     processed_msgs.append(dm)
 
             return processed_msgs
-    
+
+
     def join_server(self, connection, port: int) -> bool:
         """
         Returns True if user successfully joined the server and False otherwise.
@@ -136,8 +138,8 @@ class DirectMessenger:
         except socket.error as e:
             print(e)
             return False
-    
-    
+
+
     def __error_present(self, response: dict) -> bool:
         """
         Returns True if the server sends an error response.

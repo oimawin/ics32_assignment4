@@ -59,3 +59,14 @@ class DirectMessenger:
         except socket.error as e:
             print(e)
             return False
+    
+    
+    def __error_present(self, response: dict) -> bool:
+        """
+        Returns True if the server sends an error response.
+        """
+        if response['response']['type'] == 'ok':
+            return False
+        elif response['response']['type'] == 'error':
+            print(f"[ERROR] {response['response']['message']}")
+            return True

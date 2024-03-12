@@ -42,6 +42,7 @@ def extract_json(json_msg:str) -> DataTuple:
 #          }
 #     }
 
+
 def extract_directmsgs(json_msg:str):
     json_obj = json.loads(json_msg)
     cmd = json_obj['response']['type']
@@ -81,3 +82,13 @@ def package_msg(cmd:str, message:str, token:str, recipient=None) -> str:
     elif cmd == "bio":
         info = {"token": token, "bio": {"entry": message, "timestamp": timestamp}}
         return to_json(info)
+    
+def package_directmsg(token:str, message=None, recipient=None, new=False, all=False):
+    if isinstance(message, str):
+        timestamp = time.time()
+        info = {"token": token, "directmessage": {"entry": message, "recipient": recipient, "timestamp": timestamp}}
+        return to_json(info)
+    elif new:
+        return to_json({"token": token, "directmessage": "new"})
+    elif all:
+        return to_json({"token": token, "directmessage": "all"})

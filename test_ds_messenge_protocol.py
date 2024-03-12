@@ -26,3 +26,9 @@ class TestPckgNewMsgs(unittest.TestCase):
         expected = '{"token": "chicken_fries", "directmessage": "new"}'
         output = dsp.package_directmsg("chicken_fries", new=True)
         assert expected == output, error_msg(expected, output)
+
+class TestPckgAllMsgs(unittest.TestCase):
+    def test_all(self):
+        expected = '{"token": "chicken_fries", "directmessage": "all"}'
+        output = dsp.package_directmsg("chicken_fries", all=True)
+        assert expected == output, error_msg(expected, output)

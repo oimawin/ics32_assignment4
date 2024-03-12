@@ -70,6 +70,22 @@ class ErrorException(Exception):
     Raised when the DSP server sends an error message.
     """
 
+def join_server(connection, server, port, username, password) -> str:
+    try:
+        connection.connect((server, port))
+        out_msg = ds_protocol.package_join(username, password)
+        send_msg(connection, out_msg)
+    except socket.error as e:
+        print(e)
+        return None
+    
+    # Receive okay message
+    response = rcv_msg(connection)
+    if error_present(response):
+        return None
+
+    return response.token
+
 
 def send_msg(connection, message:str) -> None:
     """

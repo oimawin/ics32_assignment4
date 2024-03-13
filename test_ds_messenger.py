@@ -33,7 +33,9 @@ class Communication(unittest.TestCase):
         pass
     
     def test_all_msgs(self):
-        pass
+        all_msgs = user1.retrieve_all()
+        for each in all_msgs:
+            print(each.__dict__)
 
 if __name__ == "__main__":
     unittest.main()

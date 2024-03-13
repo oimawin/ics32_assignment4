@@ -57,6 +57,8 @@ class TestExtractDirectsMsgs(unittest.TestCase):
         expected = DataTuple("ok", example_response['response']['messages'], "")
         output = dsp.extract_directmsgs(example_response_str)
         assert expected == output, error_msg(expected, output)
+    
+    
         
         
         

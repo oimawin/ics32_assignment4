@@ -54,7 +54,7 @@ class DirectMessenger:
             if self.__error_present(response):
                 return False
             
-            print(response)
+            #print(response)
             return True
 
 
@@ -69,7 +69,7 @@ class DirectMessenger:
 
             connection.send(out_msg.encode('utf-8'))
             response = json.loads(connection.recv(2048).decode('utf-8'))
-            print(response)
+            #print(response)
 
             if self.__error_present(response):
                 return False
@@ -99,7 +99,7 @@ class DirectMessenger:
 
             connection.send(out_msg.encode('utf-8'))
             response = json.loads(connection.recv(2048).decode('utf-8'))
-            print(response)
+            #print(response)
 
             if self.__error_present(response):
                 return False

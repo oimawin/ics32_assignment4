@@ -201,5 +201,6 @@ class Profile:
         else:
             raise DsuFileError()
     
+
     def save_recipient(self, recipient:str) -> None:
         self.recipients.append(recipient)

@@ -51,7 +51,7 @@ class DirectMessenger:
             connection.send(out_msg.encode('utf-8'))
 
             response = json.loads(connection.recv(2048).decode('utf-8'))
-            if self.__error_present(response):
+            if self._error_present(response):
                 return False
             
             #print(response)
@@ -71,7 +71,7 @@ class DirectMessenger:
             response = json.loads(connection.recv(2048).decode('utf-8'))
             #print(response)
 
-            if self.__error_present(response):
+            if self._error_present(response):
                 return False
 
             msgs = response['response']['messages']
@@ -101,7 +101,7 @@ class DirectMessenger:
             response = json.loads(connection.recv(2048).decode('utf-8'))
             #print(response)
 
-            if self.__error_present(response):
+            if self._error_present(response):
                 return False
 
             msgs = response['response']['messages']
@@ -129,7 +129,7 @@ class DirectMessenger:
 
             response = json.loads(connection.recv(2048).decode('utf-8'))
 
-            if self.__error_present(response):
+            if self._error_present(response):
                 return False
 
             self.token = response['response']['token']
@@ -140,7 +140,7 @@ class DirectMessenger:
             return False
 
 
-    def __error_present(self, response: dict) -> bool:
+    def _error_present(self, response: dict) -> bool:
         """
         Returns True if the server sends an error response.
         """

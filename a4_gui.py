@@ -15,18 +15,22 @@ class LoginWindow(Tk):
         welcome_msg = Label(master=self,
                             text='Welcome to the ICS 32 Server!\nTo get started, enter a username and password\nor enter a dsu file path.')
         
+        def get_info():
+            self.user.username = username_entry.get()
+            self.user.password = password_entry.get()
+            # filepath = filedialog.asksaveasfilename()
+            # self.user.save_profile(filepath)
+        
         # Widgets for user/password entry
         username_label = Label(master=self, text='Username')
         username_entry = Entry(master=self)
         password_label = Label(master=self, text='Password')
         password_entry = Entry(master=self)
-        server_label = Label(master=self, text='Server IP Address')
-        server_entry = Entry(master=self)
-        login_button = Button(master=self, text='Login')
+        login_button = Button(master=self, text='Login', command=get_info)
         
         or_label = Label(master=self, text='\nor\n')
         
-        # Widgets for loading Profile from dsu file
+        # Button widget for loading Profile from dsu file
         file_label = Button(master=self, text='Load a dsu file', command=self._open_file)
         
         # Pack widgets
@@ -35,8 +39,6 @@ class LoginWindow(Tk):
         username_entry.grid(row=1, column=1)
         password_label.grid(row=2, column=0)
         password_entry.grid(row=2, column=1)
-        server_label.grid(row=3, column=0)
-        server_entry.grid(row=3, column=1)
         login_button.grid(row=4, columnspan=2, pady=10)
         or_label.grid(row=5, columnspan=2)
         file_label.grid(row=6, columnspan=2)

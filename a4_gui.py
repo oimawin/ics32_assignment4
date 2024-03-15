@@ -15,23 +15,27 @@ class LoginWindow(Tk):
         welcome_msg = Label(master=self,
                             text='Welcome to the ICS 32 Server!\nTo get started, enter a username and password\nor enter a dsu file path.')
         
-        def get_info():
+        def _manual_entry() -> None:
             self.user.username = username_entry.get()
             self.user.password = password_entry.get()
-            # filepath = filedialog.asksaveasfilename()
-            # self.user.save_profile(filepath)
+            self.destroy()
+        
+        def _file_entry() -> None:
+            self._open_file()
+            self.destory()
+            print(self.user.__dict__)
         
         # Widgets for user/password entry
         username_label = Label(master=self, text='Username')
         username_entry = Entry(master=self)
         password_label = Label(master=self, text='Password')
         password_entry = Entry(master=self)
-        login_button = Button(master=self, text='Login', command=get_info)
+        login_button = Button(master=self, text='Login', command=_manual_entry)
         
         or_label = Label(master=self, text='\nor\n')
         
         # Button widget for loading Profile from dsu file
-        file_label = Button(master=self, text='Load a dsu file', command=self._open_file)
+        file_label = Button(master=self, text='Load a dsu file', command=_file_entry)
         
         # Pack widgets
         welcome_msg.grid(row=0, columnspan=2, padx=20, pady=20)
@@ -49,10 +53,6 @@ class LoginWindow(Tk):
             self.user.load_profile(filepath)
         except DsuFileError:
             messagebox.showinfo("File error", "Not a valid dsu file! Try again or enter a username and password.")
-    
-    def _load_user(self) -> None:
-        dmuser = DirectMessenger()
-        pass
 
 
 class Body(Frame):
@@ -186,11 +186,11 @@ class NewContactDialog(simpledialog.Dialog):
 
 
 class MainApp(Frame):
-    def __init__(self, root):
+    def __init__(self, root, username, password):
         Frame.__init__(self, root)
         self.root = root
-        self.username = None
-        self.password = None
+        self.username = username
+        self.password = password
         self.server = None
         self.recipient = None
         self.direct_messenger = None
@@ -223,13 +223,22 @@ class MainApp(Frame):
         # DirectMessenger instance after this line.
 
     def publish(self, message:str):
-        self.direct_messenger(message, self.recipient)
+        self.send(message, self.recipient)
         # You must implement this!
 
     def check_new(self):
         
         # You must implement this!
         pass
+    
+    def open_file(self) -> None:
+        try:
+            filepath = filedialog.askopenfilename()
+            dsuprofile = Profile()
+            dsuprofile.load_profile(filepath)
+            # TODO finish function
+        except DsuFileError:
+            messagebox.showinfo("File error", "Not a valid dsu file! Try again or enter a username and password.")
 
     def _draw(self):
         # Build a menu and add it to the root frame.
@@ -239,7 +248,8 @@ class MainApp(Frame):
 
         menu_bar.add_cascade(menu=menu_file, label='File')
         menu_file.add_command(label='New')
-        menu_file.add_command(label='Open...')
+        menu_file.add_command(label='Open...',
+                              command=self.open_file)
         menu_file.add_command(label='Close')
 
         settings_file = Menu(menu_bar)
@@ -290,11 +300,13 @@ def main_page():
     main_window.mainloop()
 
 if __name__ == "__main__":
+    start = LoginWindow()
+    start.title("ICS 32 DS Login")
     main = Tk()
     main.title("ICS 32 Distributed Social Messenger")
     main.geometry("720x480")
     main.option_add('*tearOff', False)
-    app = MainApp(main)
+    app = MainApp(main, username=start.user.username, password=start.user.password)
 
     # When update is called, we finalize the states of all widgets that
     # have been configured within the root frame. Here, update ensures that

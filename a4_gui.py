@@ -18,11 +18,11 @@ class LoginWindow(Tk):
         def _manual_entry() -> None:
             self.user.username = username_entry.get()
             self.user.password = password_entry.get()
-            self.destroy()
+            self.quit()
         
         def _file_entry() -> None:
             self._open_file()
-            self.destory()
+            self.destroy()
             print(self.user.__dict__)
         
         # Widgets for user/password entry
@@ -63,9 +63,11 @@ class Body(Frame):
         self._select_callback = recipient_selected_callback
         self._draw()
 
-    def node_select(self, event):
+    def node_select(self):
         index = int(self.posts_tree.selection()[0])
         entry = self._contacts[index]
+        print(self._contacts)
+        print(entry)
         if self._select_callback is not None:
             self._select_callback(entry)
 
@@ -186,20 +188,26 @@ class NewContactDialog(simpledialog.Dialog):
 
 
 class MainApp(Frame):
-    def __init__(self, root, username, password):
+    def __init__(self, root):
         Frame.__init__(self, root)
         self.root = root
-        self.username = username
-        self.password = password
+        self.username = None
+        self.password = None
         self.server = None
         self.recipient = None
-        self.direct_messenger = None
+        self.direct_messenger = DirectMessenger()
+        self.profile = Profile()
         self._draw()
+        self._login_page()
         self.body.insert_contact("studentexw23") # adding one example student.
 
     def send_message(self):
         # You must implement this!
-        pass
+        body = self.body
+        message = body.get_text_entry()
+        body.node_select()
+        self.direct_messenger.send(message, self.recipient)
+        body.insert_user_message(message)
 
     def add_contact(self):
         rd = NewContactDialog(self.root, "Add Contact")
@@ -216,8 +224,7 @@ class MainApp(Frame):
     def configure_server(self):
         sd = ServerDialog(self.root, "Configure Server")
         self.server = sd.server
-        user = DirectMessenger(dsuserver=self.server, username=self.username, password=self.password)
-        self.direct_messenger = user
+        self.direct_messenger.dsuserver = sd.server
         # You must implement this!
         # You must configure and instantiate your
         # DirectMessenger instance after this line.
@@ -236,9 +243,17 @@ class MainApp(Frame):
             filepath = filedialog.askopenfilename()
             dsuprofile = Profile()
             dsuprofile.load_profile(filepath)
-            # TODO finish function
+            self.profile = dsuprofile
+            self.username = dsuprofile.username
+            self.password = dsuprofile.password
+            self.direct_messenger.username = dsuprofile.username
+            self.direct_messenger.password = dsuprofile.password
         except DsuFileError:
             messagebox.showinfo("File error", "Not a valid dsu file! Try again or enter a username and password.")
+
+    def _login_page(self) -> None:
+        start = LoginWindow()
+        start.title("ICS 32 DS Login")
 
     def _draw(self):
         # Build a menu and add it to the root frame.
@@ -300,13 +315,11 @@ def main_page():
     main_window.mainloop()
 
 if __name__ == "__main__":
-    start = LoginWindow()
-    start.title("ICS 32 DS Login")
     main = Tk()
     main.title("ICS 32 Distributed Social Messenger")
     main.geometry("720x480")
     main.option_add('*tearOff', False)
-    app = MainApp(main, username=start.user.username, password=start.user.password)
+    app = MainApp(main)
 
     # When update is called, we finalize the states of all widgets that
     # have been configured within the root frame. Here, update ensures that

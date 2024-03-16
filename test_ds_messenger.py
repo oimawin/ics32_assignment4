@@ -30,7 +30,9 @@ class Communication(unittest.TestCase):
         assert user1.send("Go, sports team!", user1.username)
         
     def test_new_msgs(self):
-        pass
+        new_msgs = user1.retrieve_new()
+        for each in new_msgs:
+            print(each.__dict__)
     
     def test_all_msgs(self):
         all_msgs = user1.retrieve_all()
@@ -38,4 +40,6 @@ class Communication(unittest.TestCase):
             print(each.__dict__)
 
 if __name__ == "__main__":
-    unittest.main()
+    #unittest.main()
+    newtest = Communication()
+    newtest.test_new_msgs()

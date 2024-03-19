@@ -75,6 +75,7 @@ class Body(Frame):
         self._contacts.append(contact)
         id = len(self._contacts) - 1
         self._insert_contact_tree(id, contact)
+        print(self._contacts)
 
     def _insert_contact_tree(self, id, contact: str):
         if len(contact) > 25:
@@ -154,6 +155,32 @@ class Footer(Frame):
         self.footer_label = Label(master=self, text="Ready.")
         self.footer_label.pack(fill=BOTH, side=LEFT, padx=5)
 
+class LoginDialog(simpledialog.Dialog):
+    def __init__(self, root, title=None):
+        self.root = root
+        self.server = None
+        self.username = None
+        self.password = None
+        super().__init__(root, title)
+
+    def body(self, frame):
+        self.username_label = Label(frame, width=30, text="Username")
+        self.username_label.pack()
+        self.username_entry = Entry(frame, width=30)
+        self.username_entry.pack()
+        
+        self.password_label = Label(frame, width=30, text="Password")
+        self.password_label.pack()
+        self.password_entry = Entry(frame, width=30)
+        self.password_entry.pack()
+        
+        self.server_label = Label(frame, width=30, text="DS Server Address")
+        self.server_label.pack()
+        self.server_entry = Entry(frame, width=30)
+        self.server_entry.pack()
+
+    def apply(self):
+        self.server = self.server_entry.get()
 
 class ServerDialog(simpledialog.Dialog):
     def __init__(self, root, title=None, server=None):
@@ -198,8 +225,6 @@ class MainApp(Frame):
         self.direct_messenger = DirectMessenger()
         self.profile = Profile()
         self._draw()
-        self._login_page()
-        self.body.insert_contact("studentexw23") # adding one example student.
 
     def send_message(self):
         # You must implement this!
@@ -246,14 +271,19 @@ class MainApp(Frame):
             self.profile = dsuprofile
             self.username = dsuprofile.username
             self.password = dsuprofile.password
+            self.server = dsuprofile.dsuserver
             self.direct_messenger.username = dsuprofile.username
             self.direct_messenger.password = dsuprofile.password
+            for i in dsuprofile.recipients:
+                self.body.insert_contact(i)
         except DsuFileError:
             messagebox.showinfo("File error", "Not a valid dsu file! Try again or enter a username and password.")
 
     def _login_page(self) -> None:
-        start = LoginWindow()
-        start.title("ICS 32 DS Login")
+        login = LoginDialog(self.root)
+        # start = LoginWindow()
+        # start.title("ICS 32 DS Login")
+        
 
     def _draw(self):
         # Build a menu and add it to the root frame.
@@ -262,7 +292,8 @@ class MainApp(Frame):
         menu_file = Menu(menu_bar)
 
         menu_bar.add_cascade(menu=menu_file, label='File')
-        menu_file.add_command(label='New')
+        menu_file.add_command(label='New',
+                              command=self._login_page)
         menu_file.add_command(label='Open...',
                               command=self.open_file)
         menu_file.add_command(label='Close')

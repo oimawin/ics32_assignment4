@@ -9,6 +9,7 @@
 
 import json, time
 from pathlib import Path
+from ds_messenger import DirectMessage
 
 
 class DsuFileError(Exception):
@@ -195,6 +196,10 @@ class Profile:
                 for post_obj in obj['_posts']:
                     post = Post(post_obj['entry'], post_obj['timestamp'])
                     self._posts.append(post)
+                # for dm_obj in obj['directmsgs']:
+                #     dm = DirectMessage()
+                for recipient in obj['recipients']:
+                    self.recipients.append(recipient)
                 f.close()
             except Exception as ex:
                 raise DsuProfileError(ex)

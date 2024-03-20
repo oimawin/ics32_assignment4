@@ -22,6 +22,7 @@ class Body(Frame):
             self._select_callback(entry)
         if self._show_new_msgs_callback is not None:
             self._show_new_msgs_callback()
+                
 
     def insert_contact(self, contact: str):
         self._contacts.append(contact)
@@ -135,6 +136,7 @@ class LoginDialog(simpledialog.Dialog):
 
     def apply(self):
         self.username = self.username_entry.get()
+        self.password = self.password_entry.get()
         self.dsuserver = self.dsuserver_entry.get()
 
 class ServerDialog(simpledialog.Dialog):
@@ -191,6 +193,7 @@ class MainApp(Frame):
         self.direct_messenger = None
         self.profile = None
         self._draw()
+        self.after(500, self.display_new_msgs)
 
     def send_message(self):
         # You must implement this!
@@ -228,10 +231,12 @@ class MainApp(Frame):
         return self.direct_messenger.retrieve_new()
     
     def display_new_msgs(self):
-        new_msgs = self.check_new()
-        for each in new_msgs:
-            if each.recipient == self.recipient:
-                self.body.insert_contact_message(each.message)
+        if self.recipient is not None:
+            new_msgs = self.check_new()
+            for each in new_msgs:
+                if each.recipient == self.recipient:
+                    self.body.insert_contact_message(each.message)
+            self.after(500, self.display_new_msgs)
     
     def open_file(self) -> None:
         try:

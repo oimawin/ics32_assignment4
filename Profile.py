@@ -99,7 +99,7 @@ class Profile:
         self.password = password # REQUIRED
         self.bio = ''            # OPTIONAL
         self._posts = []         # OPTIONAL
-        self.directmsgs = {}
+        self.directmsgs = []
         self.recipients = []
 
 
@@ -196,8 +196,10 @@ class Profile:
                 for post_obj in obj['_posts']:
                     post = Post(post_obj['entry'], post_obj['timestamp'])
                     self._posts.append(post)
-                # for dm_obj in obj['directmsgs']:
-                #     dm = DirectMessage()
+                for dm_obj in obj['directmsgs']:
+                    dm = DirectMessage()
+                    dm.create_dm(dm_obj['from'], dm_obj['message'], dm_obj['timestamp'])
+                    self.directmsgs.append(dm)
                 for recipient in obj['recipients']:
                     self.recipients.append(recipient)
                 f.close()

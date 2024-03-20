@@ -1,27 +1,37 @@
+
+import time
 from tkinter import *
 from tkinter import filedialog, messagebox, simpledialog, ttk
 from Profile import Profile, DsuFileError
-from ds_messenger import DirectMessenger
+from ds_messenger import DirectMessenger, DirectMessage
+
 
 # Server = 168.235.86.101
 
 class Body(Frame):
-    def __init__(self, root, recipient_selected_callback=None, show_new_msgs_callback=None):
+    def __init__(self, root, recipient_selected_callback=None, new_msgs_callback=None, prev_msgs_callback=None):
         Frame.__init__(self, root)
         self.root = root
         self._contacts = [str]
         self._select_callback = recipient_selected_callback
-        self._show_new_msgs_callback = show_new_msgs_callback
+        self._new_msgs_callback = new_msgs_callback
+        self._prev_msgs_callback = prev_msgs_callback
         self._draw()
 
     def node_select(self, event):
         index = int(self.posts_tree.selection()[0])
         entry = self._contacts[index]
         # TODO: Reset message_editor or load just sent messages each time new recipient selected
+        self.entry_editor.configure(state='normal')
+        self.entry_editor.delete(1.0, END)
+        self.entry_editor.configure(state='disabled')
+        #load previous messages in session
         if self._select_callback is not None:
             self._select_callback(entry)
-        if self._show_new_msgs_callback is not None:
-            self._show_new_msgs_callback()
+        if self._prev_msgs_callback is not None:
+            self._prev_msgs_callback()
+        if self._new_msgs_callback is not None:
+            self._new_msgs_callback()
                 
 
     def insert_contact(self, contact: str):
@@ -195,6 +205,15 @@ class MainApp(Frame):
         self._draw()
         self.after(500, self.display_new_msgs)
 
+    def load_prev_messages(self):
+        all_msgs = self.profile.directmsgs
+        if self.recipient in all_msgs:
+            for dm_obj in all_msgs[self.recipient]:
+                if dm_obj.recipient == self.username:
+                    self.body.insert_user_message(dm_obj.message)
+                elif dm_obj.recipient == self.recipient:
+                    self.body.insert_contact_message(dm_obj.message)
+
     def send_message(self):
         # You must implement this!
         if self.dsuserver is None:
@@ -203,6 +222,9 @@ class MainApp(Frame):
             message = self.body.get_text_entry()
             self.body.node_select('bruh')
             self.direct_messenger.send(message, self.recipient)
+            dm = DirectMessage()
+            dm.create_dm(self.recipient, message, time.time())
+            self.profile.store_dm(dm, self.recipient)
             self.body.insert_user_message(message)
             self.body.set_text_entry('')
 
@@ -237,6 +259,9 @@ class MainApp(Frame):
         if self.recipient is not None and self.recipient is not None:
             new_msgs = self.check_new()
             for each in new_msgs:
+                dm = DirectMessage()
+                dm.create_dm(self.username, each.message, each.timestamp)
+                self.profile.store_dm(dm, self.recipient)
                 if each.recipient == self.recipient:
                     self.body.insert_contact_message(each.message)
             self.after(500, self.display_new_msgs)
@@ -301,7 +326,8 @@ class MainApp(Frame):
         # packed into the root window.
         self.body = Body(self.root,
                          recipient_selected_callback=self.recipient_selected,
-                         show_new_msgs_callback=self.display_new_msgs)
+                         new_msgs_callback=self.display_new_msgs,
+                         prev_msgs_callback=self.load_prev_messages)
         self.body.pack(fill=BOTH, side=TOP, expand=True)
         self.footer = Footer(self.root, send_callback=self.send_message)
         self.footer.pack(fill=BOTH, side=BOTTOM)

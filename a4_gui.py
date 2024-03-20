@@ -1,5 +1,6 @@
 
 import time
+from pathlib import Path
 from tkinter import *
 from tkinter import filedialog, messagebox, simpledialog, ttk
 from Profile import Profile, DsuFileError
@@ -32,7 +33,6 @@ class Body(Frame):
             self._prev_msgs_callback()
         if self._new_msgs_callback is not None:
             self._new_msgs_callback()
-                
 
     def insert_contact(self, contact: str):
         self._contacts.append(contact)
@@ -233,6 +233,7 @@ class MainApp(Frame):
     def add_contact(self):
         rd = NewContactDialog(self.root, "Add Contact")
         self.body.insert_contact(rd.recipient)
+        self.profile.recipients.append(rd)
         # Profile class add to recipient list
         # You must implement this!
         # Hint: check how to use simpledialog.askstring to retrieve
@@ -270,7 +271,7 @@ class MainApp(Frame):
     
     def open_file(self) -> None:
         try:
-            filepath = filedialog.askopenfilename()
+            filepath = filedialog.askopenfilename(filetypes=[("dsu file", "*.dsu")])
             dsuprofile = Profile()
             dsuprofile.load_profile(filepath)
             self.profile = dsuprofile
@@ -295,6 +296,7 @@ class MainApp(Frame):
         UserInfoDialog(self.root, self.username, self.dsuserver)
     
     def check_connected(self) -> None:
+        # TODO
         if self.dsuserver is None:
             self.footer.footer_label.config(text="Offline")
         else:
@@ -304,6 +306,14 @@ class MainApp(Frame):
         self.dsuserver = None
         messagebox.showinfo("Disconnected", "You have been disconnected from the server.\nPlease reconnect to a server to send messages.")
 
+    def save_and_close(self) -> None:
+        try:
+            filepath = filedialog.asksaveasfilename(filetypes=[("dsu file", "*.dsu")])
+            self.profile.save_profile(filepath)
+            self.root.destory()
+        except Exception:
+            messagebox.showinfo("File loading error", "Could not load a file!")
+        
     def _draw(self):
         # Build a menu and add it to the root frame.
         menu_bar = Menu(self.root)
@@ -315,7 +325,8 @@ class MainApp(Frame):
                               command=self._login_page)
         menu_file.add_command(label='Open...',
                               command=self.open_file)
-        menu_file.add_command(label='Close')
+        menu_file.add_command(label='Close',
+                              command=self.save_and_close)
 
         settings_file = Menu(menu_bar)
         menu_bar.add_cascade(menu=settings_file, label='Settings')

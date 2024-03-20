@@ -22,6 +22,9 @@ class DirectMessage:
         self.recipient = recipient
         self.message = message
         self.timestamp = timestamp
+    
+    def dump_dm(self):
+        return self.__dict__
 
 
 class DirectMessenger:

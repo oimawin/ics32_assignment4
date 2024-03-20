@@ -99,7 +99,9 @@ class Profile:
         self.password = password # REQUIRED
         self.bio = ''            # OPTIONAL
         self._posts = []         # OPTIONAL
-        self.directmsgs = []
+        self.directmsgs = {}
+        # Example of directmsgs
+        # {'recipient1':[{recipient:recipient1, message:message1, timestamp:number}]}
         self.recipients = []
 
 
@@ -196,10 +198,9 @@ class Profile:
                 for post_obj in obj['_posts']:
                     post = Post(post_obj['entry'], post_obj['timestamp'])
                     self._posts.append(post)
-                for dm_obj in obj['directmsgs']:
+                for recipient in obj['directmsgs']:
                     dm = DirectMessage()
-                    dm.create_dm(dm_obj['from'], dm_obj['message'], dm_obj['timestamp'])
-                    self.directmsgs.append(dm)
+                    
                 for recipient in obj['recipients']:
                     self.recipients.append(recipient)
                 f.close()
@@ -211,3 +212,12 @@ class Profile:
 
     def save_recipient(self, recipient:str) -> None:
         self.recipients.append(recipient)
+        
+    def save_dm(self, dm: DirectMessage) -> None:
+        if dm.recipient in self.directmsgs:
+            if dm.dump_dm() not in self.directmsgs[dm.recipient]:
+                self.directmsgs[dm.recipient].append(dm.dump_dm())
+            else:
+                pass
+        else:
+            self.directmsgs[dm.recipient] = [dm.dump_dm()]

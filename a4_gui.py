@@ -2,7 +2,7 @@
 import time
 from tkinter import *
 from tkinter import filedialog, messagebox, simpledialog, ttk
-from Profile import Profile, DsuFileError
+from Profile import Profile, DsuFileError, DsuProfileError
 from ds_messenger import DirectMessenger, DirectMessage
 
 
@@ -198,6 +198,7 @@ class MainApp(Frame):
         self.password = None
         self.dsuserver = None
         self.recipient = None
+        self.dsufilepath = None
         self.direct_messenger = None
         self.profile = None
         self._draw()
@@ -231,7 +232,7 @@ class MainApp(Frame):
     def add_contact(self):
         rd = NewContactDialog(self.root, "Add Contact")
         self.body.insert_contact(rd.recipient)
-        self.profile.recipients.append(rd)
+        self.profile.recipients.append(rd.recipient)
         # Profile class add to recipient list
         # You must implement this!
         # Hint: check how to use simpledialog.askstring to retrieve
@@ -245,6 +246,7 @@ class MainApp(Frame):
         sd = ServerDialog(self.root, "Configure Server")
         self.dsuserver = sd.dsuserver
         self.direct_messenger.dsuserver = sd.dsuserver
+        self.profile.dsuserver = sd.dsuserver
         # You must implement this!
         # You must configure and instantiate your
         # DirectMessenger instance after this line.
@@ -279,6 +281,7 @@ class MainApp(Frame):
             self.direct_messenger = DirectMessenger(self.dsuserver, self.username, self.password)
             for i in dsuprofile.recipients:
                 self.body.insert_contact(i)
+            self.dsufilepath = filepath
         except DsuFileError:
             messagebox.showinfo("File error", "Not a valid dsu file! Try again or enter a username and password.")
 
@@ -306,11 +309,14 @@ class MainApp(Frame):
 
     def save_and_close(self) -> None:
         try:
-            filepath = filedialog.asksaveasfilename(filetypes=[("dsu file", "*.dsu")])
-            self.profile.save_profile(filepath)
-            self.root.destory()
-        except Exception:
-            messagebox.showinfo("File loading error", "Could not load a file!")
+            if self.profile is None:
+                raise DsuProfileError
+            if self.dsufilepath is None:
+                self.dsufilepath = filedialog.asksaveasfilename(filetypes=[("dsu file", "*.dsu")])
+            self.profile.save_profile(self.dsufilepath)
+            self.root.destroy()
+        except DsuProfileError:
+            messagebox.showinfo("Profile error", "You do not have a profile loaded! Please create a username and password before saving.")
         
     def _draw(self):
         # Build a menu and add it to the root frame.

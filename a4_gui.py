@@ -1,6 +1,5 @@
 
 import time
-from pathlib import Path
 from tkinter import *
 from tkinter import filedialog, messagebox, simpledialog, ttk
 from Profile import Profile, DsuFileError
@@ -22,7 +21,6 @@ class Body(Frame):
     def node_select(self, event):
         index = int(self.posts_tree.selection()[0])
         entry = self._contacts[index]
-        # TODO: Reset message_editor or load just sent messages each time new recipient selected
         self.entry_editor.configure(state='normal')
         self.entry_editor.delete(1.0, END)
         self.entry_editor.configure(state='disabled')
@@ -136,7 +134,7 @@ class LoginDialog(simpledialog.Dialog):
         
         self.password_label = Label(frame, width=30, text="Password")
         self.password_label.pack()
-        self.password_entry = Entry(frame, width=30)
+        self.password_entry = Entry(frame, width=30, show='*')
         self.password_entry.pack()
         
         self.dsuserver_label = Label(frame, width=30, text="DS Server Address")

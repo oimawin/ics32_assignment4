@@ -134,7 +134,6 @@ class NewContactDialog(tk.simpledialog.Dialog):
 
     def apply(self):
         self.user = self.username_entry.get()
-        self.pwd = self.password_entry.get()
         self.server = self.server_entry.get()
 
 

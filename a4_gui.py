@@ -80,7 +80,9 @@ class Body(Frame):
         id = self.posts_tree.insert('', id, id, text=contact)
 
     def insert_user_message(self, message:str):
+        self.entry_editor.configure(state='normal')
         self.entry_editor.insert(1.0, message + '\n', 'entry-right')
+        self.entry_editor.configure(state='disabled')
 
     def insert_contact_message(self, message:str):
         self.entry_editor.insert(1.0, message + '\n', 'entry-left')
@@ -239,12 +241,11 @@ class MainApp(Frame):
 
     def send_message(self):
         # You must implement this!
-        body = self.body
-        message = body.get_text_entry()
-        body.node_select('bruh')
-        print(message, self.recipient)
+        message = self.body.get_text_entry()
+        self.body.node_select('bruh')
         self.direct_messenger.send(message, self.recipient)
-        body.insert_user_message(message)
+        self.body.insert_user_message(message)
+        self.body.message_editor.delete('1.0', END)
 
     def add_contact(self):
         rd = NewContactDialog(self.root, "Add Contact")
@@ -262,7 +263,6 @@ class MainApp(Frame):
         sd = ServerDialog(self.root, "Configure Server")
         self.dsuserver = sd.dsuserver
         self.direct_messenger.dsuserver = sd.dsuserver
-        print(self.direct_messenger.dsuserver)
         # You must implement this!
         # You must configure and instantiate your
         # DirectMessenger instance after this line.

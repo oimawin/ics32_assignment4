@@ -349,7 +349,7 @@ class MainApp(Frame):
         self.footer = Footer(self.root, send_callback=self.send_message)
         self.footer.pack(fill=BOTH, side=BOTTOM)
 
-if __name__ == "__main__":
+def start_gui():
     main = Tk()
     main.title("ICS 32 Distributed Social Messenger")
     main.geometry("720x480")

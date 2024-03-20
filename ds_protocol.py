@@ -30,20 +30,6 @@ def extract_json(json_msg:str) -> DataTuple:
     except json.JSONDecodeError:
         print("Json cannot be decoded.")
 
-# # Sending of direct message was successful
-# {"response": {"type": "ok", "message": "Direct message sent"}}
-
-# # Response to request for **`all`** and **`new`** messages. Timestamp is time in seconds 
-# # of when the message was originally sent.
-# ex = {"response": 
-#     {"type": "ok", 
-#      "messages": 
-#          [{"message":"Hello User 1!", "from":"markb", "timestamp":"1603167689.3928561"},
-#           {"message":"Bzzzzz", "from":"thebeemoviescript" "timestamp":"1603167689.3928561"}
-#           ]
-#          }
-#     }
-
 
 def extract_directmsgs(json_msg:str):
     json_obj = json.loads(json_msg)

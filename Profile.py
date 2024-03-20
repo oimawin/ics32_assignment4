@@ -101,7 +101,7 @@ class Profile:
         self._posts = []         # OPTIONAL
         self.directmsgs = {}
         # Example of directmsgs
-        # {'recipient1':[{recipient:recipient1, message:message1, timestamp:number}]}
+        # {'recipient1':[DMObject1]}
         self.recipients = []
 
 
@@ -198,13 +198,13 @@ class Profile:
                 for post_obj in obj['_posts']:
                     post = Post(post_obj['entry'], post_obj['timestamp'])
                     self._posts.append(post)
-                for recipient in obj['directmsgs']:
-                    #TODO
-                    dm = DirectMessage()
-                    recipient = 4
-                    message = 4
-                    timestamp = 4
-                    dm.create_dm(recipient, message, timestamp)
+                # for recipient in obj['directmsgs']:
+                #     #TODO
+                #     dm = DirectMessage()
+                #     recipient = 4
+                #     message = 4
+                #     timestamp = 4
+                #     dm.create_dm(recipient, message, timestamp)
                     
                 for recipient in obj['recipients']:
                     self.recipients.append(recipient)
@@ -217,12 +217,13 @@ class Profile:
 
     def save_recipient(self, recipient:str) -> None:
         self.recipients.append(recipient)
-        
-    def save_dm(self, dm: DirectMessage) -> None:
-        if dm.recipient in self.directmsgs:
-            if dm.dump_dm() not in self.directmsgs[dm.recipient]:
-                self.directmsgs[dm.recipient].append(dm.dump_dm())
-            else:
+    
+
+    def store_dm(self, dm: DirectMessage, recipient:str) -> None:
+        if recipient in self.directmsgs:
+            if dm not in self.directmsgs[recipient]:
+                self.directmsgs[recipient].append(dm)
+            elif dm in self.directmsgs[recipient]:
                 pass
         else:
-            self.directmsgs[dm.recipient] = [dm.dump_dm()]
+            self.directmsgs[recipient] = [dm]

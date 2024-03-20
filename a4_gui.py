@@ -235,8 +235,8 @@ class MainApp(Frame):
         self.password = None
         self.dsuserver = None
         self.recipient = None
-        self.direct_messenger = DirectMessenger()
-        self.profile = Profile()
+        self.direct_messenger = None
+        self.profile = None
         self._draw()
 
     def send_message(self):
@@ -245,7 +245,7 @@ class MainApp(Frame):
         self.body.node_select('bruh')
         self.direct_messenger.send(message, self.recipient)
         self.body.insert_user_message(message)
-        self.body.message_editor.delete('1.0', END)
+        self.body.set_text_entry('')
 
     def add_contact(self):
         rd = NewContactDialog(self.root, "Add Contact")
@@ -285,9 +285,7 @@ class MainApp(Frame):
             self.username = dsuprofile.username
             self.password = dsuprofile.password
             self.dsuserver = dsuprofile.dsuserver
-            self.direct_messenger.username = dsuprofile.username
-            self.direct_messenger.password = dsuprofile.password
-            self.direct_messenger.dsuserver = dsuprofile.dsuserver
+            self.direct_messenger = DirectMessenger(self.dsuserver, self.username, self.password)
             for i in dsuprofile.recipients:
                 self.body.insert_contact(i)
         except DsuFileError:
@@ -298,9 +296,8 @@ class MainApp(Frame):
         self.username = login.username
         self.password = login.password
         self.dsuserver = login.dsuserver
-        self.direct_messenger.username = login.username
-        self.direct_messenger.password = login.password
-        self.direct_messenger.dsuserver = login.dsuserver
+        self.profile = Profile(self.dsuserver, self.username, self.password)
+        self.direct_messenger = DirectMessenger(self.dsuserver, self.username, self.password)
         
     def show_user_info(self) -> None:
         UserInfoDialog(self.root, self.username, self.dsuserver)

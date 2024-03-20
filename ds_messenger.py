@@ -66,9 +66,10 @@ class DirectMessenger:
                 return False
 
             out_msg = json.dumps({"token": self.token, "directmessage": "new"})
-
             connection.send(out_msg.encode('utf-8'))
-            response = json.loads(connection.recv(2048).decode('utf-8'))
+            
+            rcv = connection.makefile('r')
+            response = json.loads(rcv.readline())
             #print(response)
 
             if self._error_present(response):
@@ -96,9 +97,10 @@ class DirectMessenger:
                 return False
 
             out_msg = json.dumps({"token": self.token, "directmessage": "all"})
-
             connection.send(out_msg.encode('utf-8'))
-            response = json.loads(connection.recv(2048).decode('utf-8'))
+            
+            rcv = connection.makefile('r')
+            response = json.loads(rcv.readline())
             #print(response)
 
             if self._error_present(response):

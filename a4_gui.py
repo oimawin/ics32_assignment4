@@ -210,9 +210,9 @@ class MainApp(Frame):
         if self.recipient in all_msgs:
             for dm_obj in all_msgs[self.recipient]:
                 if dm_obj.recipient == self.username:
-                    self.body.insert_user_message(dm_obj.message)
-                elif dm_obj.recipient == self.recipient:
                     self.body.insert_contact_message(dm_obj.message)
+                elif dm_obj.recipient == self.recipient:
+                    self.body.insert_user_message(dm_obj.message)
 
     def send_message(self):
         # You must implement this!
@@ -220,7 +220,6 @@ class MainApp(Frame):
             messagebox.showinfo("Offline", "You are not connected to a server!")
         else:
             message = self.body.get_text_entry()
-            self.body.node_select('bruh')
             self.direct_messenger.send(message, self.recipient)
             dm = DirectMessage()
             dm.create_dm(self.recipient, message, time.time())

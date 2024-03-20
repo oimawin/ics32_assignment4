@@ -163,6 +163,9 @@ class Profile:
         if p.exists() and p.suffix == '.dsu':
             try:
                 f = open(p, 'w')
+                
+                self.directmsgs = self.dm_to_json()
+                
                 json.dump(self.__dict__, f)
                 f.close()
             except Exception as ex:
@@ -199,6 +202,7 @@ class Profile:
                     post = Post(post_obj['entry'], post_obj['timestamp'])
                     self._posts.append(post)
                 self.directmsgs = obj['directmsgs']
+                self.directmsgs = self.json_to_dm(self.directmsgs)
                 self.recipients = obj['recipients']
                 f.close()
             except Exception as ex:
@@ -219,3 +223,23 @@ class Profile:
                 pass
         else:
             self.directmsgs[recipient] = [dm]
+    
+    def dm_to_json(self) -> dict:
+        dms_json = {}
+        for recipient in self.recipients:
+            recipient_msgs = []
+            for each in self.directmsgs[recipient]:
+                recipient_msgs.append(each.__dict__)
+            dms_json[recipient] = recipient_msgs
+        return dms_json
+    
+    def json_to_dm(self, json_dict) -> dict:
+        dms = {}
+        for recipient in json_dict:
+            recipient_msgs = []
+            for each in json_dict[recipient]:
+                dm = DirectMessage()
+                dm.create_dm(each['recipient'], each['message'], each['timestamp'])
+                recipient_msgs.append(dm)
+            dms[recipient] = recipient_msgs
+        return dms

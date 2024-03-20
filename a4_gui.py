@@ -203,7 +203,7 @@ class MainApp(Frame):
         self.profile = None
         self._draw()
         self.after(500, self.display_new_msgs)
-        self.after(5000, self.check_connected)
+        #self.after(5000, self.check_connected)
 
     def load_prev_messages(self):
         all_msgs = self.profile.directmsgs

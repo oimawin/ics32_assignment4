@@ -204,6 +204,7 @@ class MainApp(Frame):
         self.profile = None
         self._draw()
         self.after(500, self.display_new_msgs)
+        self.after(5000, self.check_connected)
 
     def load_prev_messages(self):
         all_msgs = self.profile.directmsgs
@@ -220,12 +221,14 @@ class MainApp(Frame):
             messagebox.showinfo("Offline", "You are not connected to a server!")
         else:
             message = self.body.get_text_entry()
-            self.direct_messenger.send(message, self.recipient)
-            dm = DirectMessage()
-            dm.create_dm(self.recipient, message, time.time())
-            self.profile.store_dm(dm, self.recipient)
-            self.body.insert_user_message(message)
-            self.body.set_text_entry('')
+            if self.direct_messenger.send(message, self.recipient):
+                dm = DirectMessage()
+                dm.create_dm(self.recipient, message, time.time())
+                self.profile.store_dm(dm, self.recipient)
+                self.body.insert_user_message(message)
+                self.body.set_text_entry('')
+            else:
+                messagebox.showinfo("Send error", "Message could not be sent!")
 
     def add_contact(self):
         rd = NewContactDialog(self.root, "Add Contact")
@@ -291,6 +294,12 @@ class MainApp(Frame):
     def show_user_info(self) -> None:
         UserInfoDialog(self.root, self.username, self.dsuserver)
     
+    def check_connected(self) -> None:
+        if self.dsuserver is None:
+            self.footer.footer_label.config(text="Offline")
+        else:
+            self.footer.footer_label.config(text = "Online")
+    
     def disconnect_server(self) -> None:
         self.dsuserver = None
         messagebox.showinfo("Disconnected", "You have been disconnected from the server.\nPlease reconnect to a server to send messages.")
@@ -346,8 +355,6 @@ if __name__ == "__main__":
     # behavior of the window changes.
     main.update()
     main.minsize(main.winfo_width(), main.winfo_height())
-    id = main.after(2000, app.check_new)
-    print(id)
     # And finally, start up the event loop for the program (you can find
     # more on this in lectures of week 9 and 10).
     main.mainloop()

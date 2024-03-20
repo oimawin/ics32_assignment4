@@ -199,7 +199,12 @@ class Profile:
                     post = Post(post_obj['entry'], post_obj['timestamp'])
                     self._posts.append(post)
                 for recipient in obj['directmsgs']:
+                    #TODO
                     dm = DirectMessage()
+                    recipient = 4
+                    message = 4
+                    timestamp = 4
+                    dm.create_dm(recipient, message, timestamp)
                     
                 for recipient in obj['recipients']:
                     self.recipients.append(recipient)

@@ -197,11 +197,14 @@ class MainApp(Frame):
 
     def send_message(self):
         # You must implement this!
-        message = self.body.get_text_entry()
-        self.body.node_select('bruh')
-        self.direct_messenger.send(message, self.recipient)
-        self.body.insert_user_message(message)
-        self.body.set_text_entry('')
+        if self.dsuserver is None:
+            messagebox.showinfo("Offline", "You are not connected to a server!")
+        else:
+            message = self.body.get_text_entry()
+            self.body.node_select('bruh')
+            self.direct_messenger.send(message, self.recipient)
+            self.body.insert_user_message(message)
+            self.body.set_text_entry('')
 
     def add_contact(self):
         rd = NewContactDialog(self.root, "Add Contact")
@@ -231,7 +234,7 @@ class MainApp(Frame):
         return self.direct_messenger.retrieve_new()
     
     def display_new_msgs(self):
-        if self.recipient is not None:
+        if self.recipient is not None and self.recipient is not None:
             new_msgs = self.check_new()
             for each in new_msgs:
                 if each.recipient == self.recipient:
@@ -263,6 +266,10 @@ class MainApp(Frame):
         
     def show_user_info(self) -> None:
         UserInfoDialog(self.root, self.username, self.dsuserver)
+    
+    def disconnect_server(self) -> None:
+        self.dsuserver = None
+        messagebox.showinfo("Disconnected", "You have been disconnected from the server.\nPlease reconnect to a server to send messages.")
 
     def _draw(self):
         # Build a menu and add it to the root frame.
@@ -281,12 +288,14 @@ class MainApp(Frame):
         menu_bar.add_cascade(menu=settings_file, label='Settings')
         settings_file.add_command(label='Login',
                                   command=self._login_page)
+        settings_file.add_command(label='User Information',
+                                  command=self.show_user_info)
         settings_file.add_command(label='Add Contact',
                                   command=self.add_contact)
         settings_file.add_command(label='Configure DS Server',
                                   command=self.configure_server)
-        settings_file.add_command(label='User Information',
-                                  command=self.show_user_info)
+        settings_file.add_command(label='Disconnect from DSU Server',
+                                  command=self.disconnect_server)
 
         # The Body and Footer classes must be initialized and
         # packed into the root window.

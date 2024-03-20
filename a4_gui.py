@@ -2,7 +2,8 @@ from tkinter import *
 from tkinter import filedialog, messagebox, simpledialog, ttk
 from Profile import Profile, DsuFileError
 from ds_messenger import DirectMessenger
-import a4
+
+# Server = 168.235.86.101
 
 class LoginWindow(Tk):
     def __init__(self):
@@ -23,7 +24,6 @@ class LoginWindow(Tk):
         def _file_entry() -> None:
             self._open_file()
             self.destroy()
-            print(self.user.__dict__)
         
         # Widgets for user/password entry
         username_label = Label(master=self, text='Username')
@@ -63,11 +63,9 @@ class Body(Frame):
         self._select_callback = recipient_selected_callback
         self._draw()
 
-    def node_select(self):
+    def node_select(self, event):
         index = int(self.posts_tree.selection()[0])
         entry = self._contacts[index]
-        print(self._contacts)
-        print(entry)
         if self._select_callback is not None:
             self._select_callback(entry)
 
@@ -75,7 +73,6 @@ class Body(Frame):
         self._contacts.append(contact)
         id = len(self._contacts) - 1
         self._insert_contact_tree(id, contact)
-        print(self._contacts)
 
     def _insert_contact_tree(self, id, contact: str):
         if len(contact) > 25:
@@ -133,7 +130,6 @@ class Body(Frame):
         entry_editor_scrollbar.pack(fill=Y, side=LEFT,
                                     expand=False, padx=0, pady=0)
 
-
 class Footer(Frame):
     def __init__(self, root, send_callback=None):
         Frame.__init__(self, root)
@@ -155,10 +151,11 @@ class Footer(Frame):
         self.footer_label = Label(master=self, text="Ready.")
         self.footer_label.pack(fill=BOTH, side=LEFT, padx=5)
 
+
 class LoginDialog(simpledialog.Dialog):
     def __init__(self, root, title=None):
         self.root = root
-        self.server = None
+        self.dsuserver = None
         self.username = None
         self.password = None
         super().__init__(root, title)
@@ -174,28 +171,30 @@ class LoginDialog(simpledialog.Dialog):
         self.password_entry = Entry(frame, width=30)
         self.password_entry.pack()
         
-        self.server_label = Label(frame, width=30, text="DS Server Address")
-        self.server_label.pack()
-        self.server_entry = Entry(frame, width=30)
-        self.server_entry.pack()
+        self.dsuserver_label = Label(frame, width=30, text="DS Server Address")
+        self.dsuserver_label.pack()
+        self.dsuserver_entry = Entry(frame, width=30)
+        self.dsuserver_entry.pack()
 
     def apply(self):
-        self.server = self.server_entry.get()
+        self.username = self.username_entry.get()
+        self.dsuserver = self.dsuserver_entry.get()
+
 
 class ServerDialog(simpledialog.Dialog):
     def __init__(self, root, title=None, server=None):
         self.root = root
-        self.server = server
+        self.dsuserver = server
         super().__init__(root, title)
 
     def body(self, frame):
-        self.server_label = Label(frame, width=30, text="DS Server Address")
-        self.server_label.pack()
-        self.server_entry = Entry(frame, width=30)
-        self.server_entry.pack()
+        self.dsuserver_label = Label(frame, width=30, text="DS Server Address")
+        self.dsuserver_label.pack()
+        self.dsuserver_entry = Entry(frame, width=30)
+        self.dsuserver_entry.pack()
 
     def apply(self):
-        self.server = self.server_entry.get()
+        self.dsuserver = self.dsuserver_entry.get()
 
 
 class NewContactDialog(simpledialog.Dialog):
@@ -214,13 +213,25 @@ class NewContactDialog(simpledialog.Dialog):
         self.recipient = self.username_entry.get()
 
 
+class UserInfoDialog(simpledialog.Dialog):
+    def __init__(self, root, username, dsuserver, title=None):
+        self.root = root
+        self.username = username
+        self.dsuserver = dsuserver
+        super().__init__(root, title)
+
+    def body(self, frame):
+        Label(frame, width=30, text="User Information").pack()
+        Label(frame, width=30, text=f"Username: {self.username}").pack()
+        Label(frame, width=30, text=f"DSU Server: {self.dsuserver}").pack()
+
 class MainApp(Frame):
     def __init__(self, root):
         Frame.__init__(self, root)
         self.root = root
         self.username = None
         self.password = None
-        self.server = None
+        self.dsuserver = None
         self.recipient = None
         self.direct_messenger = DirectMessenger()
         self.profile = Profile()
@@ -230,7 +241,8 @@ class MainApp(Frame):
         # You must implement this!
         body = self.body
         message = body.get_text_entry()
-        body.node_select()
+        body.node_select('bruh')
+        print(message, self.recipient)
         self.direct_messenger.send(message, self.recipient)
         body.insert_user_message(message)
 
@@ -248,8 +260,9 @@ class MainApp(Frame):
 
     def configure_server(self):
         sd = ServerDialog(self.root, "Configure Server")
-        self.server = sd.server
-        self.direct_messenger.dsuserver = sd.server
+        self.dsuserver = sd.dsuserver
+        self.direct_messenger.dsuserver = sd.dsuserver
+        print(self.direct_messenger.dsuserver)
         # You must implement this!
         # You must configure and instantiate your
         # DirectMessenger instance after this line.
@@ -271,9 +284,10 @@ class MainApp(Frame):
             self.profile = dsuprofile
             self.username = dsuprofile.username
             self.password = dsuprofile.password
-            self.server = dsuprofile.dsuserver
+            self.dsuserver = dsuprofile.dsuserver
             self.direct_messenger.username = dsuprofile.username
             self.direct_messenger.password = dsuprofile.password
+            self.direct_messenger.dsuserver = dsuprofile.dsuserver
             for i in dsuprofile.recipients:
                 self.body.insert_contact(i)
         except DsuFileError:
@@ -281,9 +295,15 @@ class MainApp(Frame):
 
     def _login_page(self) -> None:
         login = LoginDialog(self.root)
-        # start = LoginWindow()
-        # start.title("ICS 32 DS Login")
+        self.username = login.username
+        self.password = login.password
+        self.dsuserver = login.dsuserver
+        self.direct_messenger.username = login.username
+        self.direct_messenger.password = login.password
+        self.direct_messenger.dsuserver = login.dsuserver
         
+    def show_user_info(self) -> None:
+        UserInfoDialog(self.root, self.username, self.dsuserver)
 
     def _draw(self):
         # Build a menu and add it to the root frame.
@@ -300,10 +320,14 @@ class MainApp(Frame):
 
         settings_file = Menu(menu_bar)
         menu_bar.add_cascade(menu=settings_file, label='Settings')
+        settings_file.add_command(label='Login',
+                                  command=self._login_page)
         settings_file.add_command(label='Add Contact',
                                   command=self.add_contact)
         settings_file.add_command(label='Configure DS Server',
                                   command=self.configure_server)
+        settings_file.add_command(label='User Information',
+                                  command=self.show_user_info)
 
         # The Body and Footer classes must be initialized and
         # packed into the root window.

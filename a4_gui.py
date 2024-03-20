@@ -5,69 +5,23 @@ from ds_messenger import DirectMessenger
 
 # Server = 168.235.86.101
 
-class LoginWindow(Tk):
-    def __init__(self):
-        super().__init__()
-        self.user = Profile()
-        self._draw()
-        
-    def _draw(self) -> None:
-        # Create widgets
-        welcome_msg = Label(master=self,
-                            text='Welcome to the ICS 32 Server!\nTo get started, enter a username and password\nor enter a dsu file path.')
-        
-        def _manual_entry() -> None:
-            self.user.username = username_entry.get()
-            self.user.password = password_entry.get()
-            self.quit()
-        
-        def _file_entry() -> None:
-            self._open_file()
-            self.destroy()
-        
-        # Widgets for user/password entry
-        username_label = Label(master=self, text='Username')
-        username_entry = Entry(master=self)
-        password_label = Label(master=self, text='Password')
-        password_entry = Entry(master=self)
-        login_button = Button(master=self, text='Login', command=_manual_entry)
-        
-        or_label = Label(master=self, text='\nor\n')
-        
-        # Button widget for loading Profile from dsu file
-        file_label = Button(master=self, text='Load a dsu file', command=_file_entry)
-        
-        # Pack widgets
-        welcome_msg.grid(row=0, columnspan=2, padx=20, pady=20)
-        username_label.grid(row=1, column=0)
-        username_entry.grid(row=1, column=1)
-        password_label.grid(row=2, column=0)
-        password_entry.grid(row=2, column=1)
-        login_button.grid(row=4, columnspan=2, pady=10)
-        or_label.grid(row=5, columnspan=2)
-        file_label.grid(row=6, columnspan=2)
-    
-    def _open_file(self) -> None:
-        try:
-            filepath = filedialog.askopenfilename()
-            self.user.load_profile(filepath)
-        except DsuFileError:
-            messagebox.showinfo("File error", "Not a valid dsu file! Try again or enter a username and password.")
-
-
 class Body(Frame):
-    def __init__(self, root, recipient_selected_callback=None):
+    def __init__(self, root, recipient_selected_callback=None, show_new_msgs_callback=None):
         Frame.__init__(self, root)
         self.root = root
         self._contacts = [str]
         self._select_callback = recipient_selected_callback
+        self._show_new_msgs_callback = show_new_msgs_callback
         self._draw()
 
     def node_select(self, event):
         index = int(self.posts_tree.selection()[0])
         entry = self._contacts[index]
+        # TODO: Reset message_editor or load just sent messages each time new recipient selected
         if self._select_callback is not None:
             self._select_callback(entry)
+        if self._show_new_msgs_callback is not None:
+            self._show_new_msgs_callback()
 
     def insert_contact(self, contact: str):
         self._contacts.append(contact)
@@ -81,11 +35,13 @@ class Body(Frame):
 
     def insert_user_message(self, message:str):
         self.entry_editor.configure(state='normal')
-        self.entry_editor.insert(1.0, message + '\n', 'entry-right')
+        self.entry_editor.insert(END, message + '\n', 'entry-right')
         self.entry_editor.configure(state='disabled')
 
     def insert_contact_message(self, message:str):
-        self.entry_editor.insert(1.0, message + '\n', 'entry-left')
+        self.entry_editor.configure(state='normal')
+        self.entry_editor.insert(END, message + '\n', 'entry-left')
+        self.entry_editor.configure(state='disabled')
 
     def get_text_entry(self) -> str:
         return self.message_editor.get('1.0', 'end').rstrip()
@@ -115,12 +71,11 @@ class Body(Frame):
         message_frame = Frame(master=self, bg="yellow")
         message_frame.pack(fill=BOTH, side=TOP, expand=False)
 
-        self.message_editor = Text(message_frame, width=0, height=5) #yscrollcommand
+        self.message_editor = Text(message_frame, width=0, height=5)
         self.message_editor.pack(fill=BOTH, side=LEFT,
                                  expand=True, padx=0, pady=0)
 
         self.entry_editor = Text(editor_frame, width=0, height=5, state='disabled')
-        #state=disabled
         self.entry_editor.tag_configure('entry-right', justify='right')
         self.entry_editor.tag_configure('entry-left', justify='left')
         self.entry_editor.pack(fill=BOTH, side=LEFT,
@@ -182,7 +137,6 @@ class LoginDialog(simpledialog.Dialog):
         self.username = self.username_entry.get()
         self.dsuserver = self.dsuserver_entry.get()
 
-
 class ServerDialog(simpledialog.Dialog):
     def __init__(self, root, title=None, server=None):
         self.root = root
@@ -197,7 +151,6 @@ class ServerDialog(simpledialog.Dialog):
 
     def apply(self):
         self.dsuserver = self.dsuserver_entry.get()
-
 
 class NewContactDialog(simpledialog.Dialog):
     def __init__(self, root, title=None, recipient=None):
@@ -214,7 +167,6 @@ class NewContactDialog(simpledialog.Dialog):
     def apply(self):
         self.recipient = self.username_entry.get()
 
-
 class UserInfoDialog(simpledialog.Dialog):
     def __init__(self, root, username, dsuserver, title=None):
         self.root = root
@@ -226,6 +178,7 @@ class UserInfoDialog(simpledialog.Dialog):
         Label(frame, width=30, text="User Information").pack()
         Label(frame, width=30, text=f"Username: {self.username}").pack()
         Label(frame, width=30, text=f"DSU Server: {self.dsuserver}").pack()
+
 
 class MainApp(Frame):
     def __init__(self, root):
@@ -272,9 +225,13 @@ class MainApp(Frame):
         # You must implement this!
 
     def check_new(self):
-        
-        # You must implement this!
-        pass
+        return self.direct_messenger.retrieve_new()
+    
+    def display_new_msgs(self):
+        new_msgs = self.check_new()
+        for each in new_msgs:
+            if each.recipient == self.recipient:
+                self.body.insert_contact_message(each.message)
     
     def open_file(self) -> None:
         try:
@@ -329,42 +286,11 @@ class MainApp(Frame):
         # The Body and Footer classes must be initialized and
         # packed into the root window.
         self.body = Body(self.root,
-                         recipient_selected_callback=self.recipient_selected)
+                         recipient_selected_callback=self.recipient_selected,
+                         show_new_msgs_callback=self.display_new_msgs)
         self.body.pack(fill=BOTH, side=TOP, expand=True)
         self.footer = Footer(self.root, send_callback=self.send_message)
         self.footer.pack(fill=BOTH, side=BOTTOM)
-
-
-def main_page():
-    main_window = Tk()
-    
-    recipients_scroll = Scrollbar(main_window)
-    recipients_lb = Listbox(main_window, yscrollcommand = recipients_scroll.set)
-    recipients_lb.insert(1, 'recipient1')
-    
-    recipient_label = Label(main_window, text='recipient1')
-    
-    conversation = Label(main_window)
-    message_entry_label = Label(main_window, text='Type a message and press send')
-    message_entry = Entry(main_window)
-    send_button = Button(main_window, text='Send')
-    
-    logout_button = Button(main_window, text='Logout')
-    
-    adduser_button = Button(main_window, text='Add User')
-    
-    
-    recipients_lb.grid(row=0, column=0, rowspan=10, columnspan=3)
-    recipients_scroll.grid()
-    recipient_label.grid(row=0, column=3, columnspan=5)
-    conversation.grid(row=1, column=3, rowspan=8, columnspan=5)
-    message_entry_label.grid(row=9, column=3, columnspan=5)
-    message_entry.grid(row=10, column=3, columnspan=5)
-    send_button.grid(row=10, column=10)
-    adduser_button.grid(row=10, column=0, columnspan=3)
-    logout_button.grid(row=11, column=3, pady=10)
-    
-    main_window.mainloop()
 
 if __name__ == "__main__":
     main = Tk()
@@ -386,7 +312,3 @@ if __name__ == "__main__":
     # And finally, start up the event loop for the program (you can find
     # more on this in lectures of week 9 and 10).
     main.mainloop()
-    
-    # start = LoginWindow()
-    # start.title("ICS 32 Distributed Social Login")
-    # start.mainloop()

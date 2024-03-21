@@ -1,9 +1,14 @@
 
+
 # test_ds_messenger.py
 
 # Emma Huynh
 # emmath@uci.edu
 # 50385611
+
+"""
+Module to test the DirectMessenger class methods.
+"""
 
 import socket
 import unittest

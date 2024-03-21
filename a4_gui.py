@@ -1,4 +1,15 @@
 
+# a4_gui.py
+
+# Emma Huynh
+# emmath@uci.edu
+# 50385611
+
+"""
+Creates a GUI to send to and receive direct messages from other users
+through a DSP server.
+"""
+
 import time
 from tkinter import *
 from tkinter import filedialog, messagebox, simpledialog, ttk
@@ -9,7 +20,10 @@ from ds_messenger import DirectMessenger, DirectMessage
 # Server = 168.235.86.101
 
 class Body(Frame):
-    def __init__(self, root, recipient_selected_callback=None, new_msgs_callback=None, prev_msgs_callback=None):
+    def __init__(self, root, 
+                 recipient_selected_callback=None,
+                 new_msgs_callback=None, 
+                 prev_msgs_callback=None):
         Frame.__init__(self, root)
         self.root = root
         self._contacts = [str]
@@ -318,7 +332,7 @@ class MainApp(Frame):
         except DsuProfileError:
             messagebox.showinfo("Profile error", "You do not have a profile loaded! Please create a username and password before saving.")
         
-    def _draw(self):
+    def _draw(self) -> None:
         # Build a menu and add it to the root frame.
         menu_bar = Menu(self.root)
         self.root['menu'] = menu_bar

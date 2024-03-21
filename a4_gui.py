@@ -20,10 +20,13 @@ from ds_messenger import DirectMessenger, DirectMessage
 # Server = 168.235.86.101
 
 class Body(Frame):
-    def __init__(self, root, 
+    """Contact treeview and message viewers and editors."""
+    def __init__(self, root,
                  recipient_selected_callback=None,
-                 new_msgs_callback=None, 
+                 new_msgs_callback=None,
                  prev_msgs_callback=None):
+        """Constructor for instantiating the body. 
+        Callbacks to the root are linked to node_select."""
         Frame.__init__(self, root)
         self.root = root
         self._contacts = [str]
@@ -33,6 +36,7 @@ class Body(Frame):
         self._draw()
 
     def node_select(self, event):
+        """Triggers event callbacks when a different contact is selected."""
         index = int(self.posts_tree.selection()[0])
         entry = self._contacts[index]
         self.entry_editor.configure(state='normal')
@@ -47,6 +51,7 @@ class Body(Frame):
             self._new_msgs_callback()
 
     def insert_contact(self, contact: str):
+        """Inserts a contact into the treeview."""
         self._contacts.append(contact)
         id = len(self._contacts) - 1
         self._insert_contact_tree(id, contact)
@@ -57,19 +62,23 @@ class Body(Frame):
         id = self.posts_tree.insert('', id, id, text=contact)
 
     def insert_user_message(self, message:str):
+        """Inserts a message that the user sent."""
         self.entry_editor.configure(state='normal')
         self.entry_editor.insert(END, message + '\n', 'entry-right')
         self.entry_editor.configure(state='disabled')
 
     def insert_contact_message(self, message:str):
+        """Inserts a message that the user received from the recipient."""
         self.entry_editor.configure(state='normal')
         self.entry_editor.insert(END, message + '\n', 'entry-left')
         self.entry_editor.configure(state='disabled')
 
     def get_text_entry(self) -> str:
+        """Returns a string of what was entered in the message entry."""
         return self.message_editor.get('1.0', 'end').rstrip()
 
     def set_text_entry(self, text:str):
+        """Sets the message entry to a specified text."""
         self.message_editor.delete(1.0, END)
         self.message_editor.insert(1.0, text)
 
@@ -111,21 +120,21 @@ class Body(Frame):
                                     expand=False, padx=0, pady=0)
 
 class Footer(Frame):
+    """Send button."""
     def __init__(self, root, send_callback=None):
+        """Constructor for instantiating the footer."""
         Frame.__init__(self, root)
         self.root = root
         self._send_callback = send_callback
         self._draw()
 
     def send_click(self):
+        """Triggers the event callback when the send button is clicked."""
         if self._send_callback is not None:
             self._send_callback()
 
     def _draw(self):
         save_button = Button(master=self, text="Send", width=20, command=self.send_click)
-        # You must implement this.
-        # Here you must configure the button to bind its click to
-        # the send_click() function.
         save_button.pack(fill=BOTH, side=RIGHT, padx=5, pady=5)
 
         self.footer_label = Label(master=self, text="Ready.")
@@ -133,6 +142,7 @@ class Footer(Frame):
 
 
 class LoginDialog(simpledialog.Dialog):
+    """Login window to take user's username, password, and DSP IP address."""
     def __init__(self, root, title=None):
         self.root = root
         self.dsuserver = None
@@ -141,57 +151,66 @@ class LoginDialog(simpledialog.Dialog):
         super().__init__(root, title)
 
     def body(self, frame):
+        """Draws the entry widgets for obtaining the username, password, and server address."""
         self.username_label = Label(frame, width=30, text="Username")
         self.username_label.pack()
         self.username_entry = Entry(frame, width=30)
         self.username_entry.pack()
-        
+
         self.password_label = Label(frame, width=30, text="Password")
         self.password_label.pack()
         self.password_entry = Entry(frame, width=30, show='*')
         self.password_entry.pack()
-        
+
         self.dsuserver_label = Label(frame, width=30, text="DS Server Address")
         self.dsuserver_label.pack()
         self.dsuserver_entry = Entry(frame, width=30)
         self.dsuserver_entry.pack()
 
     def apply(self):
+        """Sets the username, password, and server address from the Entry widgets."""
         self.username = self.username_entry.get()
         self.password = self.password_entry.get()
         self.dsuserver = self.dsuserver_entry.get()
 
 class ServerDialog(simpledialog.Dialog):
+    """Window to obtain the server IP address"""
     def __init__(self, root, title=None, server=None):
         self.root = root
         self.dsuserver = server
         super().__init__(root, title)
 
     def body(self, frame):
+        """Draws the entry widgets for obtaining the server address."""
         self.dsuserver_label = Label(frame, width=30, text="DS Server Address")
         self.dsuserver_label.pack()
         self.dsuserver_entry = Entry(frame, width=30)
         self.dsuserver_entry.pack()
 
     def apply(self):
+        """Sets the server address from the Entry widgets."""
         self.dsuserver = self.dsuserver_entry.get()
 
 class NewContactDialog(simpledialog.Dialog):
+    """Window to take the username of a new recipient."""
     def __init__(self, root, title=None, recipient=None):
         self.root = root
         self.recipient = recipient
         super().__init__(root, title)
 
     def body(self, frame):
+        """Draws the entry widgets for obtaining the a new recipient's username."""
         self.username_label = Label(frame, width=30, text="New Recipient Username")
         self.username_label.pack()
         self.username_entry = Entry(frame, width=30)
         self.username_entry.pack()
-    
+
     def apply(self):
+        """Sets the recipient username from the Entry widgets."""
         self.recipient = self.username_entry.get()
 
 class UserInfoDialog(simpledialog.Dialog):
+    """Window for displaying the user's information."""
     def __init__(self, root, username, dsuserver, title=None):
         self.root = root
         self.username = username
@@ -199,12 +218,14 @@ class UserInfoDialog(simpledialog.Dialog):
         super().__init__(root, title)
 
     def body(self, frame):
+        """Draws the window for displaying the user's current username and DSP server address."""
         Label(frame, width=30, text="User Information").pack()
         Label(frame, width=30, text=f"Username: {self.username}").pack()
         Label(frame, width=30, text=f"DSU Server: {self.dsuserver}").pack()
 
 
 class MainApp(Frame):
+    """Main frame that contains most functionality with sending and receiving messages."""
     def __init__(self, root):
         Frame.__init__(self, root)
         self.root = root
@@ -217,9 +238,9 @@ class MainApp(Frame):
         self.profile = None
         self._draw()
         self.after(500, self.display_new_msgs)
-        #self.after(5000, self.check_connected)
 
     def load_prev_messages(self):
+        """Displays previously sent messages to and from the selected recipient."""
         all_msgs = self.profile.directmsgs
         if self.recipient in all_msgs:
             for dm_obj in all_msgs[self.recipient]:
@@ -229,7 +250,8 @@ class MainApp(Frame):
                     self.body.insert_user_message(dm_obj.message)
 
     def send_message(self):
-        # You must implement this!
+        """Sends the user message from the text entry to the recipient
+        and displays the sent message."""
         if self.dsuserver is None:
             messagebox.showinfo("Offline", "You are not connected to a server!")
         else:
@@ -244,35 +266,35 @@ class MainApp(Frame):
                 messagebox.showinfo("Send error", "Message could not be sent!")
 
     def add_contact(self):
+        """Asks for a new recipient's username, inserts it into the contact tree,
+        and adds it to the user's list of recipients."""
         rd = NewContactDialog(self.root, "Add Contact")
         self.body.insert_contact(rd.recipient)
         self.profile.recipients.append(rd.recipient)
-        # Profile class add to recipient list
-        # You must implement this!
-        # Hint: check how to use simpledialog.askstring to retrieve
-        # the name of the new contact, and then use one of the body
-        # methods to add the contact to your contact list
 
-    def recipient_selected(self, recipient):
+    def recipient_selected(self, recipient: str):
+        """Sets the current recipient to the passed recipient argument."""
         self.recipient = recipient
 
     def configure_server(self):
+        """Asks for an DSP server IP address and saves it."""
         sd = ServerDialog(self.root, "Configure Server")
         self.dsuserver = sd.dsuserver
         self.direct_messenger.dsuserver = sd.dsuserver
         self.profile.dsuserver = sd.dsuserver
-        # You must implement this!
-        # You must configure and instantiate your
-        # DirectMessenger instance after this line.
 
     def publish(self, message:str):
+        """Sends a message to the recipient."""
         self.send(message, self.recipient)
-        # You must implement this!
 
-    def check_new(self):
+    def check_new(self) -> list:
+        """Returns a list of DirectMessage objects of messages sent to the user."""
         return self.direct_messenger.retrieve_new()
-    
+
     def display_new_msgs(self):
+        """Checks for new messages from the current recipient every half
+        a second, stores it in the user's DirectMessenger object, and
+        displays the messages."""
         if self.recipient is not None and self.recipient is not None:
             new_msgs = self.check_new()
             for each in new_msgs:
@@ -282,8 +304,10 @@ class MainApp(Frame):
                 if each.recipient == self.recipient:
                     self.body.insert_contact_message(each.message)
             self.after(500, self.display_new_msgs)
-    
+
     def open_file(self) -> None:
+        """Prompts the user to open a dsu file and loads
+        the user's Profile."""
         try:
             filepath = filedialog.askopenfilename(filetypes=[("dsu file", "*.dsu")])
             dsuprofile = Profile()
@@ -300,28 +324,30 @@ class MainApp(Frame):
             messagebox.showinfo("File error", "Not a valid dsu file! Try again or enter a username and password.")
 
     def _login_page(self) -> None:
+        """Prompts the user for their username, password, and server IP address
+        and creates and stores a new Profile."""
         login = LoginDialog(self.root)
         self.username = login.username
         self.password = login.password
         self.dsuserver = login.dsuserver
         self.profile = Profile(self.dsuserver, self.username, self.password)
         self.direct_messenger = DirectMessenger(self.dsuserver, self.username, self.password)
-        
+
     def show_user_info(self) -> None:
+        """Instantiates a UserInfoDialog obejct to show the user's
+        current username and dsu server IP address."""
         UserInfoDialog(self.root, self.username, self.dsuserver)
-    
-    def check_connected(self) -> None:
-        # TODO
-        if self.dsuserver is None:
-            self.footer.footer_label.config(text="Offline")
-        else:
-            self.footer.footer_label.config(text = "Online")
-    
+
     def disconnect_server(self) -> None:
+        """Sets the current DSU server to None."""
         self.dsuserver = None
-        messagebox.showinfo("Disconnected", "You have been disconnected from the server.\nPlease reconnect to a server to send messages.")
+        msg = "You have been disconnected from the server."
+        msg = msg + "\nPlease reconnect to a server to send messages."
+        messagebox.showinfo("Disconnected", msg)
 
     def save_and_close(self) -> None:
+        """Saves the user's current Profile to a dsu file
+        and closes the program."""
         try:
             if self.profile is None:
                 raise DsuProfileError
@@ -330,8 +356,10 @@ class MainApp(Frame):
             self.profile.save_profile(self.dsufilepath)
             self.root.destroy()
         except DsuProfileError:
-            messagebox.showinfo("Profile error", "You do not have a profile loaded! Please create a username and password before saving.")
-        
+            error_msg = "Profile error", "You do not have a profile loaded! "
+            error_msg = error_msg + "Please create a username and password before saving."
+            messagebox.showinfo(error_msg)
+
     def _draw(self) -> None:
         # Build a menu and add it to the root frame.
         menu_bar = Menu(self.root)
@@ -369,27 +397,20 @@ class MainApp(Frame):
         self.footer = Footer(self.root, send_callback=self.send_message)
         self.footer.pack(fill=BOTH, side=BOTTOM)
 
-def not_empty(message:str) -> bool:
-    if isinstance(message, str) and not msg.isspace() and len(msg) != 0:
+def not_empty(msg:str) -> bool:
+    """Returns True if the message is not empty."""
+    if isinstance(msg, str) and not msg.isspace() and len(msg) != 0:
         return True
     else:
         return False
 
 def start_gui():
+    """Starts the Direct Messenger GUI."""
     main = Tk()
     main.title("ICS 32 Distributed Social Messenger")
     main.geometry("720x480")
     main.option_add('*tearOff', False)
-    app = MainApp(main)
-
-    # When update is called, we finalize the states of all widgets that
-    # have been configured within the root frame. Here, update ensures that
-    # we get an accurate width and height reading based on the types of widgets
-    # we have used. minsize prevents the root window from resizing too small.
-    # Feel free to comment it out and see how the resizing
-    # behavior of the window changes.
+    MainApp(main)
     main.update()
     main.minsize(main.winfo_width(), main.winfo_height())
-    # And finally, start up the event loop for the program (you can find
-    # more on this in lectures of week 9 and 10).
     main.mainloop()

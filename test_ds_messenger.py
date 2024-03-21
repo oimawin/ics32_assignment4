@@ -20,24 +20,22 @@ PORT = 3021
 user1 = DirectMessenger(SERVER, 'lunavoyager', 'velvetvortexpassword')
 user2 = DirectMessenger(SERVER, 'quantumquasar', 'lunarlegendpassword')
 
-def test_join_svr(self):
+def test_join_svr():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as connection:
         assert user1.join_server(connection, PORT)
 
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as connection: 
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as connection:
         assert user2.join_server(connection, PORT)
 
-def test_send_msg(self):
+def test_send_msg():
     assert user1.send("Honey! Where's my paaaanntttsss??", user2.username)
     assert user1.send("Always root for the local sports team.", user1.username)
     assert user1.send("Go, sports team!", user1.username)
-    
-def test_new_msgs(self):
+
+def test_new_msgs():
     new_msgs = user1.retrieve_new()
     assert len(new_msgs) != 0
 
-def test_all_msgs(self):
+def test_all_msgs():
     all_msgs = user1.retrieve_all()
     assert len(all_msgs) != 0
-
-

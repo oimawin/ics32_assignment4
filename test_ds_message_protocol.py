@@ -16,29 +16,29 @@ from ds_protocol import DataTuple
 def error_msg(expected, output):
     return f"Expected output: {expected}. Actual output: {output}."
 
-def test_directmsg(self):
+def test_directmsg():
     entry = "I did not hit her! I did noooot."
     recipient = "ohhimark"
     expected = dsp.to_json({"token": "chicken_fries", "directmessage": {"entry": "I did not hit her! I did noooot.","recipient":"ohhimark", "timestamp": time.time()}})
     output = dsp.package_directmsg("chicken_fries", message=entry, recipient=recipient)
     assert expected == output, error_msg(expected, output)
 
-def test_new(self):
+def test_new():
     expected = '{"token": "chicken_fries", "directmessage": "new"}'
     output = dsp.package_directmsg("chicken_fries", new=True)
     assert expected == output, error_msg(expected, output)
 
-def test_all(self):
+def test_all():
     expected = '{"token": "chicken_fries", "directmessage": "all"}'
     output = dsp.package_directmsg("chicken_fries", all=True)
     assert expected == output, error_msg(expected, output)
 
-def test_extract_send(self):
+def test_extract_send():
     expected = DataTuple("ok", "Direct message sent", "")
     output = dsp.extract_directmsgs('{"response": {"type": "ok", "message": "Direct message sent"}}')
     assert expected == output, error_msg(expected, output)
 
-def test_extract_msgs(self):
+def test_extract_msgs():
     example_response = {"response": 
             {
                 "type": "ok", 

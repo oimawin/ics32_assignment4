@@ -369,6 +369,12 @@ class MainApp(Frame):
         self.footer = Footer(self.root, send_callback=self.send_message)
         self.footer.pack(fill=BOTH, side=BOTTOM)
 
+def not_empty(message:str) -> bool:
+    if isinstance(message, str) and not msg.isspace() and len(msg) != 0:
+        return True
+    else:
+        return False
+
 def start_gui():
     main = Tk()
     main.title("ICS 32 Distributed Social Messenger")
